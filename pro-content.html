@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <title>pro-content</title>
+</head>
+<body>
+
+<div id="app">
+    <!--=====================форма основная==================================================-->
+    <h1>Мой список дел {{ items.length}}</h1>
+    <form class="form" @submit.prevent>
+        <input type="text" v-model="newItem" placeholder="Введите задание..." @keyup.enter="addItem">
+    </form>
+    <!--=====================форма основная==================================================-->
+    <!--=====================Фильтер=========================================================-->
+    <form class="form">
+        <input type="text" v-model="search" placeholder="..Работает фильтр заданий">
+    </form>
+    <!--=====================Фильтер=========================================================-->
+    <!--=====================Кнопка Добавть задание===========================================-->
+    <button @click="addItem" class="btn">Добавть задание</button>
+    <!--=====================Кнопка Добавть задание===========================================-->
+    <h1 v-if="items.length === 0">{{ addTask }}</h1>
+    <!--======================Чекбоксы=======================================================-->
+    <div class="wrapper">
+        <div class="checkbox">
+            <input type="checkbox" v-for="(item, index) in filterItem" @change="toggleStatus(index)"
+                   :checked="item.completed">
+        </div>
+    <!--======================Чекбоксы=======================================================-->
+    <!--======================Поменять текст=======================================================-->
+        <div class="button">
+            <button @click="toggleStatus(index)" v-for="(item, index) in filterItem" class="changeStatus">Выполнено
+            </button>
+        </div>
+     <!--======================Поменять текст=======================================================-->
+     <!--======================Список первоначальный===========================================-->
+        <ul class="first-ul">
+            <li v-for="(item, index) in filterItem" :class="item.completed ? 'decoration' : ''"
+                @click="edit(index)">
+                <span v-if="!item.edit">{{ item.title}}</span>
+                <input type="text" v-if="item.edit" v-model="item.title" @keyup.enter="item.edit = false">
+            </li>
+        </ul>
+    <!--======================Список первоначальный===========================================-->
+    <!--======================Удиление списка=================================================-->
+        <ul class="second-ul">
+            <li @click="removeItem(index)" v-for="(item, index) in filterItem"><span>&times</span></li>
+        </ul>
+    <!--======================Удиление списка=================================================-->
+    </div>
+</div>
+
+<script>
+    let app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                items: [
+                    {title: 'Вскопать огород', completed: false, edit: false},
+                    {title: 'Помыть посуду', completed: false, edit: false},
+                    {title: 'Дочитать книгу', completed: false, edit: false},
+                    {title: 'Позвонить Лёве', completed: false, edit: false},
+                    {title: 'Купить продукты', completed: false, edit: false},
+                ],
+                newItem: '',
+                search: '',
+                addTask: 'Добавьте задание!',
+            }
+        },
+        methods: {
+            toggleStatus(index) {
+                this.items[index].completed = !this.items[index].completed;
+            },
+            addItem: function () {
+                if (this.newItem.length > 0) {
+                    this.items.push({title: this.newItem, completed: false, edit: false});
+                }
+            },
+            removeItem: function (index) {
+                this.items.splice(index, 1);
+            },
+            edit: function (index) {
+                this.items[index].edit = true;
+            }
+        },
+        computed: {
+            filterItem() {
+                let self = this
+                const filtered = this.items.filter(function (item) {
+                    return item.title.toLowerCase().indexOf(self.search) > -1
+                })
+                return filtered
+            },
+        },
+    })
+</script>
+<style>
+
+    #app {
+        text-align: center;
+        font-size: 20px;
+    }
+
+    .wrapper {
+        display: flex;
+        justify-content: center;
+    }
+
+    .decoration {
+        text-decoration: line-through;
+    }
+
+    li {
+        list-style: none;
+        text-align: left;
+        border: 1px solid #bb9822;
+        margin-bottom: 3px;
+        padding: 4px;
+        background-color: #339333;
+    }
+
+    .checkbox {
+        display: flex;
+        flex-direction: column;
+        margin-top: 23px;
+    }
+
+    span {
+        border-radius: 30%;
+        width: 15px;
+        height: 15px;
+        color: #ffffff;
+        cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+        margin-top: 11px;
+        margin-bottom: 13px;
+    }
+
+    .form input {
+        width: 300px;
+        font-size: 13px;
+        padding: 6px 0 4px 10px;
+        border: 1px solid #cecece;
+        background: #F6F6f6;
+        border-radius: 8px;
+        margin-bottom: 5px;
+    }
+
+    .form input:focus {
+        outline: none;
+    }
+
+    button.btn {
+        border-color: rgb(231, 186, 186) rgb(119, 212, 37) rgb(151, 23, 23);
+        border-style: solid;
+        border-width: 1px;
+        padding: 1px 7px 2px;
+        text-rendering: auto;
+        color: initial;
+        text-align: start;
+        font: 400 11px system-ui;
+        border-radius: 5px;
+    }
+
+    button.btn:focus {
+        outline: none;
+    }
+
+    button.changeStatus {
+        width: 95px;
+        height: 32.6px;
+        border: 1px solid #125a05;
+        margin-bottom: 3px;
+        padding: 1px;
+        cursor: pointer;
+    }
+
+    .button {
+        display: flex;
+        flex-direction: column;
+        margin-top: 25px;
+    }
+
+    .first-ul {
+        padding: 5px;
+        width: 165px;
+    }
+
+    .second-ul {
+        padding: 0;
+        margin-top: 25px;
+    }
+    .first-ul li input{
+        width: 140px;
+        font-size: 13px;
+        padding: 0 0 0 10px;
+        border: 1px solid #cecece;
+        background: #F6F6f6;
+        border-radius: 8px;
+    }
+    .first-ul li input:focus{
+        outline: none;
+    }
+</style>
+</body>
+</html>
